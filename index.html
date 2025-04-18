@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FT20 Match Overlay</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      background: transparent;
       overflow: hidden;
-      width: 100%;
-      height: 100%;
     }
+
     iframe {
-      width: 100%;
-      height: 100%;
+      position: absolute;
+      top: -96px; /* ~1 inch on 96dpi screen */
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       border: none;
+      transform: scale(1);
+    }
+
+    /* Optional: blur or hide other parts */
+    .hide-others *:not(.score-container) {
+      display: none !important;
     }
   </style>
 </head>
