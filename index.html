@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CricClubs Ball-by-Ball with Dynamic Batsmen Scores</title>
+  <title>Dynamic Cricket Score Display</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,24 +13,24 @@
       color: #333;
       font-size: 14px;
     }
-    
+
     h3 {
       color: #2c3e50;
       margin-top: 10px;
       margin-bottom: 10px;
       font-size: 16px;
     }
-    
+
     .container {
       display: flex;
       width: 100%;
     }
-    
+
     .scores-panel {
       width: 40%;
       padding-right: 10px;
     }
-    
+
     .ball-by-ball-panel {
       width: 60%;
       border-left: 1px solid #ddd;
@@ -38,56 +38,126 @@
       height: 600px;
       overflow-y: auto;
     }
-    
-    .team-info {
+
+    /* Team header styles */
+    .team-header {
+      display: flex;
       margin-bottom: 15px;
     }
-    
-    .team-row {
-      display: flex;
-      margin-bottom: 5px;
-      align-items: center;
-    }
-    
-    .team-name {
-      font-weight: bold;
-      font-size: 16px;
-      width: 30%;
-    }
-    
-    .team-score {
-      font-size: 16px;
-      font-weight: bold;
-      width: 30%;
-    }
-    
-    .team-overs {
-      font-size: 14px;
-      color: #666;
-      width: 40%;
-    }
-    
-    .vs {
+
+    .batting-team, .bowling-team {
+      flex: 1;
+      padding: 10px;
+      background-color: #f0f0f0;
+      color: #333;
       text-align: center;
-      margin: 5px 0;
-      color: #888;
+      font-weight: bold;
+      font-size: 16px;
     }
-    
+
+    .batting-team {
+      border-right: 1px solid white;
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+
+    .bowling-team {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* Score banner styles */
+    .score-banner {
+      display: flex;
+      background: linear-gradient(to right, #f8f9fa, #2c3e73);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      color: white;
+      height: 60px;
+    }
+
+    .batter-left, .batter-right {
+      width: 25%;
+      padding: 5px 10px;
+      background-color: #f0f0f0;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .team-score {
+      width: 50%;
+      background-color: #2c3e73;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .bat-icon {
+      display: inline-block;
+      margin-right: 6px;
+      width: 16px;
+      height: 16px;
+      background-color: #8B4513; /* Brown color for bat */
+      position: relative;
+    }
+
+    .bat-icon::before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: 6px;
+      width: 4px;
+      height: 10px;
+      background-color: #8B4513;
+    }
+
+    .bat-icon.active {
+      background-color: #e67e22; /* Orange color for active bat */
+    }
+
+    .bat-icon.active::before {
+      background-color: #e67e22;
+    }
+
+    /* Table styles */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+
+    .info-table th, .info-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .info-table th {
+      background-color: #f2f2f2;
+    }
+
+    /* Ball by ball section */
     .ball-by-ball {
-      margin-top: 5px;
+      margin-top: 10px;
     }
-    
+
     .ball-entry {
       padding: 6px;
       border-bottom: 1px solid #eee;
       position: relative;
       font-size: 13px;
     }
-    
+
     .ball-entry:nth-child(odd) {
       background-color: #f9f9f9;
     }
-    
+
     .ball-number {
       font-weight: bold;
       margin-right: 5px;
@@ -100,7 +170,7 @@
       min-width: 30px;
       text-align: center;
     }
-    
+
     .ball-runs {
       font-weight: bold;
       margin-right: 5px;
@@ -113,139 +183,38 @@
       text-align: center;
       display: inline-block;
     }
-    
+
     .ball-runs.boundary {
       background-color: #27ae60;
     }
-    
+
     .ball-runs.six {
       background-color: #8e44ad;
     }
-    
+
     .ball-runs.wicket {
       background-color: #c0392b;
     }
-    
-    .ball-time {
-      color: #777;
-      font-size: 11px;
-      margin-left: 5px;
-    }
-    
-    .ball-commentary {
-      display: inline;
-    }
-    
+
     .loading {
       text-align: center;
       padding: 20px;
       font-style: italic;
       color: #777;
     }
-    
-    .error {
-      color: #e74c3c;
-      padding: 10px;
-      background-color: #fadbd8;
-      border-radius: 4px;
-      margin: 10px 0;
-      display: none;
-    }
-    
-    .settings-bar {
-      background-color: #f8f9fa;
-      padding: 10px;
-      border-radius: 4px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    
-    .proxy-selector, .matchid-input {
-      display: inline-block;
-      margin-right: 15px;
-    }
-    
-    .proxy-selector select, .matchid-input input {
-      padding: 5px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-    }
-    
-    .auto-refresh {
-      display: inline-block;
-    }
-    
-    .auto-refresh-label {
-      margin-left: 5px;
-      font-size: 12px;
-      color: #666;
-    }
-    
-    /* Styles for batsmen display */
-    .batsmen-panel {
-      margin-top: 15px;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border-radius: 4px;
-    }
-    
-    .batsmen-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    
-    .batsmen-table th {
-      background-color: #e9ecef;
-      padding: 6px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-      font-weight: bold;
-    }
-    
-    .batsmen-table td {
-      padding: 6px;
-      border-bottom: 1px solid #eee;
-    }
-    
-    .striker {
-      font-weight: bold;
-      background-color: #fff3cd;
-    }
-    
-    .batsman-name {
-      width: 40%;
-    }
-    
-    .batsman-runs {
-      width: 20%;
-      text-align: center;
-    }
-    
-    .batsman-balls {
-      width: 20%;
-      text-align: center;
-    }
-    
-    .batsman-sr {
-      width: 20%;
-      text-align: center;
-    }
-    
+
     /* Responsive styles */
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
       }
-      
+
       .scores-panel, .ball-by-ball-panel {
         width: 100%;
         padding: 0;
         border-left: none;
       }
-      
+
       .ball-by-ball-panel {
         border-top: 1px solid #ddd;
         margin-top: 10px;
@@ -253,835 +222,687 @@
         height: auto;
         max-height: 400px;
       }
-      
-      .settings-bar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      .proxy-selector, .matchid-input, .auto-refresh {
-        margin-bottom: 10px;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="error" id="errorMessage"></div>
-  
-  <div class="settings-bar">
-    <div class="matchid-input">
-      <label for="matchIdInput">Match ID: </label>
-      <input type="number" id="matchIdInput" value="675" min="1">
-      <button onclick="setMatchId()">Set</button>
-    </div>
-    
-    <div class="proxy-selector">
-      <label for="proxySelector">CORS Proxy: </label>
-      <select id="proxySelector">
-        <option value="https://api.allorigins.win/raw?url=">allorigins.win</option>
-        <option value="">No proxy</option>
-      </select>
-    </div>
-    
-    <div class="auto-refresh">
-      <input type="checkbox" id="autoRefreshToggle" checked>
-      <label for="autoRefreshToggle" class="auto-refresh-label">Auto-refresh every 2 seconds</label>
-    </div>
-  </div>
-  
   <div class="container">
-    <div class="scores-panel">
-      <div class="team-info" id="teamInfo">
-        <div class="loading">Loading match details...</div>
-      </div>
-      
-      <!-- New section for batsmen scores -->
-      <div class="batsmen-panel" id="batsmenPanel">
-        <h3>Current Batters</h3>
-        <div class="loading">Loading batter details...</div>
-      </div>
+    <div id="scoreContent" class="scores-panel">
+      <div id="loading" class="loading">Loading match details...</div>
     </div>
-    
     <div class="ball-by-ball-panel">
-      <h3>Ball by Ball Commentary</h3>
+      <h3>Ball By Ball Commentary</h3>
       <div class="ball-by-ball" id="ballByBallContainer">
         <div class="loading">Loading ball-by-ball commentary...</div>
       </div>
     </div>
   </div>
-  
+
   <script>
-    // Constants
-    const clubId = 862;
-    let matchId = 675;
-    let refreshInterval;
-    let excludedCommentaryList = [];
-    
-    // Keep track of batsmen over time
-    const batsmen = new Map();
-    
-    // Global variables to store match data
-    let matchData = {
-      teams: [],
-      ballByBall: [],
-      batsmen: [] // Will be populated from the batsmen Map
-    };
-    
-    // Function to set match ID
-    function setMatchId() {
-      const newMatchId = document.getElementById('matchIdInput').value;
-      if (newMatchId && !isNaN(newMatchId) && parseInt(newMatchId) > 0) {
-        matchId = parseInt(newMatchId);
-        // Clear batsmen data when changing matches
-        batsmen.clear();
-        fetchMatchData();
-      } else {
-        document.getElementById('errorMessage').textContent = 'Please enter a valid Match ID';
-        document.getElementById('errorMessage').style.display = 'block';
-      }
-    }
-    
-    // Function to setup auto-refresh
-    function setupAutoRefresh() {
-      clearInterval(refreshInterval);
-      
-      const autoRefreshEnabled = document.getElementById('autoRefreshToggle').checked;
-      if (autoRefreshEnabled) {
-        refreshInterval = setInterval(fetchMatchData, 2000); // Refresh every 2 seconds
-      }
-    }
-    
-    // Function to fetch match data
-    async function fetchMatchData() {
+    // Constants and configuration
+    const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+    const CLUB_ID = 862;
+    let MATCH_ID = 675; // Default match ID, can be changed
+
+    // Main function to fetch and process cricket data
+    async function loadMatchData() {
       try {
-        // Show loading states
-        document.getElementById('teamInfo').innerHTML = '<div class="loading">Loading match details...</div>';
+        document.getElementById('loading').innerHTML = '<div class="loading">Loading match details...</div>';
         document.getElementById('ballByBallContainer').innerHTML = '<div class="loading">Loading ball-by-ball commentary...</div>';
-        document.getElementById('batsmenPanel').innerHTML = '<h3>Current Batsmen</h3><div class="loading">Loading batsmen details...</div>';
-        
-        // Hide any previous error
-        document.getElementById('errorMessage').style.display = 'none';
-        
-        // Get the selected CORS proxy
-        const corsProxyUrl = document.getElementById('proxySelector').value;
-        
+
         // Create the target URL
-        const targetUrl = `https://cricclubs.com/FT20/ballbyball.do?matchId=${matchId}&clubId=${clubId}`;
-        
-        // We need to URL encode the target URL when using some proxies
+        const targetUrl = `https://cricclubs.com/FT20/ballbyball.do?matchId=${MATCH_ID}&clubId=${CLUB_ID}`;
         const encodedTargetUrl = encodeURIComponent(targetUrl);
-        const fullUrl = corsProxyUrl.includes('?') 
-          ? corsProxyUrl + encodedTargetUrl
-          : corsProxyUrl + targetUrl;
-        
-        try {
-          // Try to fetch the data
-          const response = await fetch(fullUrl);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          
-          const html = await response.text();
-          
-          // Parse the HTML and extract the match data
-          const parsedData = parseHtml(html);
-          
-          // Filter out excluded ball-by-ball entries
-          parsedData.ballByBall = parsedData.ballByBall.filter(ball => 
-            !excludedCommentaryList.includes(ball.commentary)
-          );
-          
-          // Update the match data
-          matchData = parsedData;
-          
-          // Display the data
-          displayMatchData();
-        } catch (fetchError) {
-          console.error('Error fetching from proxy:', fetchError);
-          document.getElementById('errorMessage').textContent = 'Error fetching data: ' + fetchError.message;
-          document.getElementById('errorMessage').style.display = 'block';
+        const fullUrl = PROXY_URL + encodedTargetUrl;
+
+        // Fetch data
+        const response = await fetch(fullUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
+
+        const html = await response.text();
+
+        // Process the HTML to extract data
+        processMatchData(html);
       } catch (error) {
-        console.error('Error handling match data:', error);
-        document.getElementById('errorMessage').textContent = 'Error handling match data: ' + error.message;
-        document.getElementById('errorMessage').style.display = 'block';
+        console.error('Error loading match data:', error);
+        document.getElementById('loading').innerHTML = `<div class="loading">Error: ${error.message}</div>`;
       }
     }
-    
-    // Function to parse HTML
-    function parseHtml(html) {
-      // Extract match data from the HTML
+
+    // Process the HTML to extract match data
+    function processMatchData(html) {
+      // Parse the HTML
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      
-      // Get teams and ball-by-ball data
-      const teams = extractTeams(doc);
+
+      // Extract team names
+      const battingTeam = extractBattingTeam(doc);
+      const bowlingTeam = extractBowlingTeam(doc);
+
+      // Extract current score
+      const currentScore = extractCurrentScore(doc);
+      const currentOvers = extractCurrentOvers(doc);
+
+      // Extract batsmen information - this is the key improvement
+      const batsmen = extractBatsmen(doc);
+
+      // Extract bowler information
+      const currentBowler = extractCurrentBowler(doc);
+
+      // Extract ball-by-ball commentary
       const ballByBall = extractBallByBall(doc);
-      
-      // Extract and update batsmen data
-      extractBatsmen(doc, ballByBall);
-      
-      // Convert batsmen Map to array for the UI
-      const batsmenArray = [];
-      batsmen.forEach(batsman => {
-        batsmenArray.push(batsman);
-      });
-      
-      return {
-        teams: teams,
-        ballByBall: ballByBall,
-        batsmen: batsmenArray
-      };
+
+      // Update the UI
+      updateUI(battingTeam, bowlingTeam, currentScore, currentOvers, batsmen, currentBowler, ballByBall);
     }
-    
-    // Functions to extract specific data from the HTML
-    function extractTeams(doc) {
-      const teams = [];
-      
-      // Try to get team names and scores
-      const teamNames = doc.querySelectorAll('.teamName');
-      if (teamNames && teamNames.length >= 2) {
-        // Find scores
-        const scores = [];
-        const scoreElements = doc.querySelectorAll('.win span, .lose span');
-        for (const el of scoreElements) {
-          if (!el.classList.contains('teamName')) {
-            const scoreText = el.textContent.trim();
-            if (scoreText.includes('/')) {
-              scores.push(scoreText);
-            }
+
+    // Extract batting team from HTML
+    function extractBattingTeam(doc) {
+      const teamElements = doc.querySelectorAll('.teamName');
+      if (teamElements && teamElements.length > 0) {
+        return teamElements[0].textContent.trim();
+      }
+      return "ICAT"; // Default value
+    }
+
+    // Extract bowling team from HTML
+    function extractBowlingTeam(doc) {
+      const teamElements = doc.querySelectorAll('.teamName');
+      if (teamElements && teamElements.length > 1) {
+        return teamElements[1].textContent.trim();
+      }
+      return "ICAT A"; // Default value
+    }
+
+    // Extract current score from HTML
+    function extractCurrentScore(doc) {
+      const scoreElements = doc.querySelectorAll('.win span, .lose span');
+      for (const el of scoreElements) {
+        if (!el.classList.contains('teamName')) {
+          const scoreText = el.textContent.trim();
+          if (scoreText.includes('/')) {
+            return scoreText;
           }
-        }
-        
-        // Find overs
-        const overs = [];
-        const oversElements = doc.querySelectorAll('.win p, .lose p');
-        for (const el of oversElements) {
-          const oversText = el.textContent.trim();
-          if (oversText.includes('ov') || oversText.includes('Overs')) {
-            overs.push(oversText);
-          }
-        }
-        
-        // Create team objects
-        for (let i = 0; i < Math.min(2, teamNames.length); i++) {
-          teams.push({
-            name: teamNames[i].textContent.trim().replace(/<br>/gi, ''),
-            score: scores[i] || '0/0',
-            overs: overs[i] || '0 overs'
-          });
         }
       }
-      
-      return teams;
+      return "0/0"; // Default value
     }
-    
-    function extractBallByBall(doc) {
-      const ballByBall = [];
-      
-      // Try to find the ball-by-ball section
-      const ballEntries = doc.querySelectorAll('.bbb-row');
-      
-      if (ballEntries && ballEntries.length > 0) {
-        ballEntries.forEach(entry => {
-          const ballNumberEl = entry.querySelector('.ov');
-          const commentaryEl = entry.querySelector('.col3');
-          
-          if (commentaryEl) {
-            const commentary = commentaryEl.innerHTML.trim();
-            const ballNumber = ballNumberEl ? ballNumberEl.textContent.trim() : '';
-            
-            // Get run information if available
-            const runsEl = entry.querySelector('.runs');
-            const runs = runsEl ? runsEl.textContent.trim() : '';
-            
-            // Get timestamp if available
-            const timeEl = entry.querySelector('.fa-clock-o');
-            let time = '';
-            if (timeEl && timeEl.parentNode) {
-              time = timeEl.parentNode.textContent.trim();
-            }
-            
-            ballByBall.push({
-              ball: ballNumber,
-              runs: runs,
-              commentary: commentary,
-              time: time
-            });
-          }
-        });
+
+    // Extract current overs from HTML
+    function extractCurrentOvers(doc) {
+      const overElements = doc.querySelectorAll('.win p, .lose p');
+      for (const el of overElements) {
+        const oversText = el.textContent.trim();
+        if (oversText.includes('ov') || oversText.includes('Overs')) {
+          return oversText;
+        }
       }
-      
-      return ballByBall;
+      return "0.0 overs"; // Default value
     }
-    
-    // Function to extract batsmen data and update the global batsmen Map
-    function extractBatsmen(doc, ballByBallData) {
-      let foundActiveBatsmen = false;
-      
-      // Method 1: First look for scorecard tables with player data
-      const scorecardTables = doc.querySelectorAll('.scorecard-table, .innings-scorecard, table');
-      
-      for (const table of scorecardTables) {
-        // Check if this is likely a batting table by looking for headers
-        const headers = table.querySelectorAll('th');
-        const isScoreTable = Array.from(headers).some(th => 
-          th.textContent.includes('Runs') || 
-          th.textContent.includes('Batsman') || 
-          th.textContent.includes('R')
-        );
-        
-        if (isScoreTable) {
-          // This looks like a batting table
-          const rows = table.querySelectorAll('tr');
-          
+
+    // Extract batsmen information - IMPROVED to dynamically find current batters
+    function extractBatsmen(doc) {
+      // First try to get batsmen from the specific batter table
+      const batsmen = [];
+      const bowlers = new Set(); // Track bowlers to avoid including them
+
+      // Get the bowlers first so we can exclude them from batters
+      const bowlerTables = doc.querySelectorAll('table');
+      for (const table of bowlerTables) {
+        // Check if this might be a bowling table by looking for headers like "O", "M", "W"
+        const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim());
+        const isBowlingTable = headers.some(h => h === 'O' || h === 'W' || h === 'Econ' || h === 'M');
+
+        if (isBowlingTable) {
+          const rows = table.querySelectorAll('tbody tr');
           for (const row of rows) {
-            const cells = row.querySelectorAll('td');
-            if (cells.length >= 3) {
-              // Check for "not out" or "*" to identify current batsmen
-              const rowText = row.textContent;
-              const isNotOut = rowText.includes('not out') || 
-                               rowText.includes('batting') || 
-                               rowText.includes('*');
-              
-              if (isNotOut) {
-                // Found a current batsman
-                const nameCell = cells[0];
-                const runsCell = cells[cells.length >= 5 ? 2 : 1]; // Different table formats
-                const ballsCell = cells[cells.length >= 5 ? 3 : 2]; // Different table formats
-                
-                if (nameCell && runsCell) {
-                  const name = nameCell.textContent.trim().replace(/\*/g, '');
-                  const runs = runsCell.textContent.trim();
-                  
-                  // Look for balls faced - might be in different positions
-                  let balls = '0';
-                  if (ballsCell) {
-                    const ballsText = ballsCell.textContent.trim();
-                    // Extract digits only
-                    const ballsMatch = ballsText.match(/\d+/);
-                    if (ballsMatch) {
-                      balls = ballsMatch[0];
-                    }
-                  }
-                  
-                  // Update batsman in our collection
-                  batsmen.set(name, {
-                    name: name,
-                    runs: runs,
-                    balls: balls,
-                    strikeRate: calculateStrikeRate(runs, balls),
-                    isStriker: rowText.includes('*') // Typically * indicates on strike
-                  });
-                  
-                  foundActiveBatsmen = true;
-                }
+            const cells = row.querySelectorAll('th, td');
+            if (cells.length >= 2) {
+              const nameCell = cells[0];
+              if (nameCell) {
+                const playerLink = nameCell.querySelector('a');
+                const bowlerName = playerLink ? playerLink.textContent.trim() : nameCell.textContent.trim();
+                bowlers.add(bowlerName.toLowerCase());
               }
             }
           }
         }
       }
-      
-      // Method 2: Look for direct batsmen display sections
-      if (!foundActiveBatsmen) {
-        const batsmenSections = doc.querySelectorAll('.batsmen-details, .current-batsmen, .live-batsmen');
-        
-        for (const section of batsmenSections) {
-          const batsmenDivs = section.querySelectorAll('.batsman, .player');
-          
-          for (const div of batsmenDivs) {
-            const nameSpan = div.querySelector('.name, .player-name');
-            const runsSpan = div.querySelector('.runs, .player-runs');
-            const ballsSpan = div.querySelector('.balls, .player-balls');
-            
-            if (nameSpan && runsSpan) {
-              const name = nameSpan.textContent.trim().replace(/\*/g, '');
-              const runs = runsSpan.textContent.trim();
-              const balls = ballsSpan ? ballsSpan.textContent.trim() : '0';
-              
-              batsmen.set(name, {
-                name: name,
-                runs: runs,
-                balls: balls,
-                strikeRate: calculateStrikeRate(runs, balls),
-                isStriker: nameSpan.innerHTML.includes('*') || div.classList.contains('striker')
-              });
-              
-              foundActiveBatsmen = true;
+
+      // Method 1: Look for dedicated batsmen tables - most reliable source
+      const batsmanTables = doc.querySelectorAll('.about-table');
+      let foundBatters = false;
+
+      for (const table of batsmanTables) {
+        // Check if this is a batting table by looking for column headers
+        const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim());
+        const isBattingTable = headers.some(h => h === 'Batter' || h === 'R' || h === 'B' || h === 'SR' || h === '4s' || h === '6s');
+
+        if (isBattingTable) {
+          const rows = table.querySelectorAll('tbody tr');
+          for (const row of rows) {
+            const cells = row.querySelectorAll('th');
+            if (cells.length >= 3) {
+              const playerLink = cells[0].querySelector('a');
+              if (playerLink) {
+                const name = playerLink.textContent.trim();
+                // Skip this player if they're in the bowlers list
+                if (bowlers.has(name.toLowerCase())) continue;
+
+                const runs = cells[1].textContent.trim();
+                const balls = cells[2].textContent.trim();
+
+                // Check if this batter is marked as strong (striker)
+                const isStriker = cells[0].innerHTML.includes('strong') ||
+                                  cells[1].innerHTML.includes('strong');
+
+                batsmen.push({
+                  name: name,
+                  runs: runs,
+                  balls: balls,
+                  isStriker: isStriker
+                });
+                foundBatters = true;
+              }
             }
           }
         }
       }
-      
-      // Method 3: Parse from commentary as a last resort
-      if (!foundActiveBatsmen && ballByBallData && ballByBallData.length > 0) {
-        // Start with most recent commentary
-        const recentCommentary = ballByBallData.slice(0, 10);
-        
-        // Look for patterns like "Name 12(15)*" in recent commentary
-        for (const ball of recentCommentary) {
-          const commentary = ball.commentary;
-          
-          // Pattern for batsmen with stats
-          const batsmanPattern = /([A-Za-z\s\.]+)\s+(\d+)\((\d+)\)(\*?)/g;
-          let match;
-          
-          while ((match = batsmanPattern.exec(commentary)) !== null) {
-            const name = match[1].trim();
-            const runs = match[2];
-            const balls = match[3];
-            const isStriker = match[4] === '*';
-            
-            batsmen.set(name, {
+
+      // If we found batters in the dedicated tables, we're done
+      if (foundBatters) {
+        // Make sure at least one is marked as striker
+        if (batsmen.length > 0 && !batsmen.some(b => b.isStriker)) {
+          batsmen[0].isStriker = true;
+        }
+        return batsmen;
+      }
+
+      // Method 2: Look through generic tables for batter information
+      const allTables = doc.querySelectorAll('table');
+
+      for (const table of allTables) {
+        const rows = table.querySelectorAll('tr');
+
+        for (const row of rows) {
+          const cells = row.querySelectorAll('th, td');
+          if (cells.length >= 3) {
+            // Try to find player information in the row
+            let nameCell = null;
+            let runsCell = null;
+            let ballsCell = null;
+
+            // Look for a cell with a link to a player
+            for (let i = 0; i < cells.length; i++) {
+              const cell = cells[i];
+              if (cell.querySelector('a[href*="viewPlayer.do"]')) {
+                nameCell = cell;
+                // Typically runs and balls are in the next cells
+                runsCell = cells[i + 1] || null;
+                ballsCell = cells[i + 2] || null;
+                break;
+              }
+            }
+
+            if (nameCell && runsCell) {
+              const playerLink = nameCell.querySelector('a');
+              if (playerLink) {
+                const name = playerLink.textContent.trim();
+                // Skip this player if they're in the bowlers list
+                if (bowlers.has(name.toLowerCase())) continue;
+
+                const runs = runsCell.textContent.trim();
+                const balls = ballsCell ? ballsCell.textContent.trim() : '0';
+
+                // Determine if this is the striker (current batter)
+                const isStriker = nameCell.innerHTML.includes('strong') ||
+                                 runsCell.innerHTML.includes('strong') ||
+                                 row.textContent.includes('not out') ||
+                                 row.textContent.includes('*');
+
+                batsmen.push({
+                  name: name,
+                  runs: runs,
+                  balls: balls,
+                  isStriker: isStriker
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // Method 3: Check ball-by-ball commentary to find batsmen names
+      if (batsmen.length === 0) {
+        const commentaryElements = doc.querySelectorAll('.bbb-row .col3');
+        const batsmenNames = new Set();
+        const bowlerNames = new Set();
+
+        for (const commentary of commentaryElements) {
+          const text = commentary.textContent;
+
+          // Extract bowler names to exclude them
+          const bowlerMatch = text.match(/^([A-Za-z\s\.]+)\s+to\s+/i);
+          if (bowlerMatch && bowlerMatch[1]) {
+            bowlerNames.add(bowlerMatch[1].trim().toLowerCase());
+          }
+
+          // Extract batsman names
+          const batsmanMatch = text.match(/to\s+([A-Za-z\s\.]+),/i);
+          if (batsmanMatch && batsmanMatch[1]) {
+            batsmenNames.add(batsmanMatch[1].trim());
+          }
+        }
+
+        // Remove any names that are also in the bowlers list
+        batsmenNames.forEach(name => {
+          if (bowlerNames.has(name.toLowerCase())) {
+            batsmenNames.delete(name);
+          }
+        });
+
+        // Convert found names to batsmen objects
+        let isFirst = true;
+        batsmenNames.forEach(name => {
+          batsmen.push({
+            name: name,
+            runs: '?',
+            balls: '?',
+            isStriker: isFirst // Assume first found is striker
+          });
+          isFirst = false;
+        });
+      }
+
+      // Method 4: If still no batsmen found, check for batsmen mentioned in "comes to the crease" comments
+      if (batsmen.length === 0) {
+        const commentaryElements = doc.querySelectorAll('.bbb-row .col3');
+
+        for (const commentary of commentaryElements) {
+          const text = commentary.textContent;
+
+          // Look for "comes to the crease" or similar phrases
+          const newBatterMatch = text.match(/([A-Za-z\s\.]+),\s+comes to the crease/i);
+          if (newBatterMatch && newBatterMatch[1]) {
+            const batterName = newBatterMatch[1].trim();
+
+            // Skip this player if they're in the bowlers list
+            if (bowlers.has(batterName.toLowerCase())) continue;
+
+            batsmen.push({
+              name: batterName,
+              runs: '?',
+              balls: '?',
+              isStriker: batsmen.length === 0 // First one is striker
+            });
+
+            // Only get the first two batters
+            if (batsmen.length >= 2) break;
+          }
+        }
+      }
+
+      // Method 5: Check the full page text for batters with runs
+      if (batsmen.length < 2) {
+        const allText = doc.body.textContent;
+        const battingPattern = /([A-Za-z\s\.]+)\s*(\d+)\s*\(\s*(\d+)\s*\)/g;
+        let match;
+
+        while ((match = battingPattern.exec(allText)) !== null) {
+          const name = match[1].trim();
+          // Skip this player if they're in the bowlers list
+          if (bowlers.has(name.toLowerCase())) continue;
+
+          const runs = match[2];
+          const balls = match[3];
+
+          // Check if this batter is already in our list
+          const existingBatter = batsmen.find(b => b.name.toLowerCase() === name.toLowerCase());
+          if (existingBatter) {
+            // Update the existing batter's information
+            existingBatter.runs = runs;
+            existingBatter.balls = balls;
+          } else {
+            batsmen.push({
               name: name,
               runs: runs,
               balls: balls,
-              strikeRate: calculateStrikeRate(runs, balls),
-              isStriker: isStriker
-            });
-            
-            foundActiveBatsmen = true;
-          }
-        }
-        
-        // If we still don't have batsmen, look for patterns in all ball-by-ball data
-        if (!foundActiveBatsmen) {
-          // Collect names of batsmen mentioned frequently in commentary
-          const nameCount = new Map();
-          
-          for (const ball of ballByBallData) {
-            const commentary = ball.commentary;
-            
-            // Look for typical name formats in cricket commentary
-            const namePatterns = [
-              /([A-Za-z\s\.]+) to ([A-Za-z\s\.]+)/i, // Bowler to Batsman
-              /([A-Za-z\s\.]+) scores/i,             // Batsman scores
-              /boundary by ([A-Za-z\s\.]+)/i,        // Boundary by Batsman
-              /([A-Za-z\s\.]+) hits/i                // Batsman hits
-            ];
-            
-            for (const pattern of namePatterns) {
-              const match = commentary.match(pattern);
-              if (match) {
-                const name = match.length > 2 ? match[2].trim() : match[1].trim();
-                nameCount.set(name, (nameCount.get(name) || 0) + 1);
-              }
-            }
-          }
-          
-          // Get the top 2 most mentioned names as likely current batsmen
-          if (nameCount.size > 0) {
-            const sortedNames = [...nameCount.entries()]
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 2)
-              .map(entry => entry[0]);
-            
-            // Try to determine runs from commentary
-            for (const name of sortedNames) {
-              // Look for the most recent mention of this batsman with runs
-              for (const ball of ballByBallData) {
-                const commentary = ball.commentary;
-                
-                if (commentary.includes(name)) {
-                  // Try to find runs pattern near the name
-                  const runsPattern = new RegExp(`${name}[^\\d]*(\\d+)\\((\\d+)\\)`, 'i');
-                  const match = commentary.match(runsPattern);
-                  
-                  if (match) {
-                    const runs = match[1];
-                    const balls = match[2];
-                    
-                    batsmen.set(name, {
-                      name: name,
-                      runs: runs,
-                      balls: balls,
-                      strikeRate: calculateStrikeRate(runs, balls),
-                      isStriker: commentary.indexOf(`${name}*`) >= 0
-                    });
-                    
-                    foundActiveBatsmen = true;
-                    break;
-                  }
-                }
-              }
-              
-              // If we couldn't find specific run info, add with estimated data
-              if (!batsmen.has(name)) {
-                // Count how many runs this batsman might have scored
-                let estimatedRuns = 0;
-                let estimatedBalls = 0;
-                
-                for (const ball of ballByBallData) {
-                  const commentary = ball.commentary;
-                  
-                  if (commentary.includes(name)) {
-                    estimatedBalls++;
-                    
-                    // Add runs if mentioned
-                    if (ball.runs && !isNaN(parseInt(ball.runs))) {
-                      estimatedRuns += parseInt(ball.runs);
-                    } else if (commentary.includes('boundary') || commentary.includes('four')) {
-                      estimatedRuns += 4;
-                    } else if (commentary.includes('six')) {
-                      estimatedRuns += 6;
-                    } else if (commentary.includes('single')) {
-                      estimatedRuns += 1;
-                    } else if (commentary.includes('double')) {
-                      estimatedRuns += 2;
-                    } else if (commentary.includes('three')) {
-                      estimatedRuns += 3;
-                    }
-                  }
-                }
-                
-                batsmen.set(name, {
-                  name: name,
-                  runs: estimatedRuns.toString(),
-                  balls: estimatedBalls.toString(),
-                  strikeRate: calculateStrikeRate(estimatedRuns.toString(), estimatedBalls.toString()),
-                  isStriker: sortedNames.indexOf(name) === 0 // Assume most mentioned is on strike
-                });
-                
-                foundActiveBatsmen = true;
-              }
-            }
-          }
-        }
-      }
-      
-      // If all methods failed, try to extract numerical data from the HTML
-      if (!foundActiveBatsmen) {
-        // Look for span elements with numerical content that might be batsmen scores
-        const allSpans = doc.querySelectorAll('span');
-        const runsSpans = [];
-        
-        for (const span of allSpans) {
-          const text = span.textContent.trim();
-          // Look for number patterns that might be runs
-          if (/^\d+$/.test(text) && parseInt(text) < 500) {
-            runsSpans.push(span);
-          }
-        }
-        
-        // Look for batsmen names near these spans
-        for (const span of runsSpans) {
-          const parent = span.parentElement;
-          if (parent) {
-            // Look for a name element nearby
-            const nameElement = parent.querySelector('.player-name, .batsman-name, strong, b');
-            if (nameElement) {
-              const name = nameElement.textContent.trim();
-              const runs = span.textContent.trim();
-              
-              // Look for balls faced nearby
-              let balls = '0';
-              const nextSpan = span.nextElementSibling;
-              if (nextSpan && /^\d+$/.test(nextSpan.textContent.trim())) {
-                balls = nextSpan.textContent.trim();
-              }
-              
-              batsmen.set(name, {
-                name: name,
-                runs: runs,
-                balls: balls,
-                strikeRate: calculateStrikeRate(runs, balls),
-                isStriker: parent.classList.contains('striker') || 
-                          parent.parentElement?.classList.contains('striker')
-              });
-              
-              foundActiveBatsmen = true;
-            }
-          }
-        }
-      }
-      
-      // If we still don't have any batsmen, try to infer from the most recent ball
-      if (!foundActiveBatsmen && ballByBallData.length > 0) {
-        // Get most recent ball
-        const lastBall = ballByBallData[0];
-        const commentary = lastBall.commentary;
-        
-        // Extract any names from the commentary
-        const nameMatch = commentary.match(/([A-Za-z\s\.]+?)(?:\s+to\s+|\s+scores|\s+hits|\s+comes)/i);
-        
-        if (nameMatch) {
-          const name = nameMatch[1].trim();
-          
-          // Check if there are any runs mentioned
-          const runsMatch = commentary.match(/(\d+)\s+runs?/i);
-          const runs = runsMatch ? runsMatch[1] : (lastBall.runs && !isNaN(lastBall.runs) ? lastBall.runs : '0');
-          
-          batsmen.set(name, {
-            name: name,
-            runs: runs,
-            balls: '1',
-            strikeRate: runs === '0' ? '0.00' : '100.00',
-            isStriker: true
-          });
-          
-          // Try to find a second batsman
-          const secondNameMatch = commentary.match(/to\s+([A-Za-z\s\.]+)/i);
-          if (secondNameMatch && secondNameMatch[1] !== name) {
-            const secondName = secondNameMatch[1].trim();
-            
-            batsmen.set(secondName, {
-              name: secondName,
-              runs: '0',
-              balls: '0',
-              strikeRate: '0.00',
-              isStriker: false
+              isStriker: batsmen.length === 0 // First match is striker
             });
           }
-          
-          foundActiveBatsmen = true;
+
+          // Only get up to two batters
+          if (batsmen.length >= 2) break;
         }
       }
-      
-      // If we still have no batsmen, create placeholders but mark them clearly
-      if (!foundActiveBatsmen) {
-        batsmen.set("Current Batsman", {
-          name: "Current Batsman",
+
+      // If still no or incomplete batters found, use placeholder values
+      if (batsmen.length === 0) {
+        batsmen.push({
+          name: "Current Batter",
           runs: "?",
           balls: "?",
-          strikeRate: "?",
           isStriker: true
         });
-        
-        batsmen.set("Non-striker", {
+
+        batsmen.push({
           name: "Non-striker",
           runs: "?",
           balls: "?",
-          strikeRate: "?",
+          isStriker: false
+        });
+      } else if (batsmen.length === 1) {
+        batsmen.push({
+          name: "Non-striker",
+          runs: "?",
+          balls: "?",
           isStriker: false
         });
       }
-      
-      // Keep only top 2 batsmen for display
-      if (batsmen.size > 2) {
-        const batsmenArray = [...batsmen.values()];
-        
-        // Sort by striker status first, then by runs
-        batsmenArray.sort((a, b) => {
-          if (a.isStriker !== b.isStriker) {
-            return a.isStriker ? -1 : 1;
+
+      // Make sure at least one batter is marked as striker
+      if (batsmen.length > 0 && !batsmen.some(b => b.isStriker)) {
+        batsmen[0].isStriker = true;
+      }
+
+      return batsmen;
+    }
+
+    // Extract current bowler information - improved to find actual current bowler
+    function extractCurrentBowler(doc) {
+      // Try to find the current active bowler from bowling tables first
+      const allTables = doc.querySelectorAll('table');
+
+      // Method 1: Look for dedicated bowler tables
+      for (const table of allTables) {
+        // Check if this is likely a bowling table
+        const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim());
+        const isBowlingTable = headers.some(h => h === 'O' || h === 'W' || h === 'Econ' || h === 'Bowler');
+
+        if (isBowlingTable) {
+          const rows = table.querySelectorAll('tbody tr');
+          // First row is likely the current bowler
+          if (rows.length > 0) {
+            const firstRow = rows[0];
+            const cells = firstRow.querySelectorAll('th, td');
+
+            if (cells.length >= 5) {
+              const nameCell = cells[0];
+              if (nameCell) {
+                const playerLink = nameCell.querySelector('a');
+                const name = playerLink ? playerLink.textContent.trim() : nameCell.textContent.trim();
+
+                return {
+                  name: name,
+                  overs: cells.length > 1 ? cells[1].textContent.trim() : "?",
+                  maidens: cells.length > 2 ? cells[2].textContent.trim() : "0",
+                  runs: cells.length > 3 ? cells[3].textContent.trim() : "?",
+                  wickets: cells.length > 4 ? cells[4].textContent.trim() : "0",
+                  economy: cells.length > 5 ? cells[5].textContent.trim() : "?"
+                };
+              }
+            }
           }
-          return parseInt(b.runs) - parseInt(a.runs);
-        });
-        
-        // Keep only top 2
-        const topBatsmen = batsmenArray.slice(0, 2);
-        
-        // Clear and refill the map
-        batsmen.clear();
-        for (const batsman of topBatsmen) {
-          batsmen.set(batsman.name, batsman);
         }
       }
-      
-      // For debugging purposes - log the batsmen we found
-      console.log("Found batsmen:", [...batsmen.values()]);
-    }
-    
-    // Helper function to calculate strike rate
-    function calculateStrikeRate(runs, balls) {
-      const runsNum = parseInt(runs);
-      const ballsNum = parseInt(balls);
-      
-      if (isNaN(runsNum) || isNaN(ballsNum) || ballsNum === 0) {
-        return "0.00";
+
+      // Method 2: Try to find bowler from recent commentary
+      const commentaryElements = doc.querySelectorAll('.bbb-row .col3');
+
+      for (const commentary of commentaryElements) {
+        const text = commentary.textContent;
+
+        // Look for patterns like "Bowler to Batsman"
+        const bowlerMatch = text.match(/^([A-Za-z\s\.]+)\s+to\s+/i);
+        if (bowlerMatch && bowlerMatch[1]) {
+          const bowlerName = bowlerMatch[1].trim();
+
+          // Try to find this bowler's stats in the bowling tables
+          for (const table of allTables) {
+            const rows = table.querySelectorAll('tr');
+            for (const row of rows) {
+              const cells = row.querySelectorAll('th, td');
+              if (cells.length >= 5) {
+                const nameCell = cells[0];
+                if (nameCell) {
+                  const name = nameCell.textContent.trim();
+                  if (name.toLowerCase().includes(bowlerName.toLowerCase())) {
+                    return {
+                      name: bowlerName,
+                      overs: cells.length > 1 ? cells[1].textContent.trim() : "?",
+                      maidens: cells.length > 2 ? cells[2].textContent.trim() : "0",
+                      runs: cells.length > 3 ? cells[3].textContent.trim() : "?",
+                      wickets: cells.length > 4 ? cells[4].textContent.trim() : "0",
+                      economy: cells.length > 5 ? cells[5].textContent.trim() : "?"
+                    };
+                  }
+                }
+              }
+            }
+          }
+
+          // If we couldn't find full stats, return what we know
+          return {
+            name: bowlerName,
+            overs: "?",
+            maidens: "0",
+            runs: "?",
+            wickets: "0",
+            economy: "?"
+          };
+        }
       }
-      
-      const sr = (runsNum / ballsNum) * 100;
-      return sr.toFixed(2);
-    }
-    
-    // Function to display match data
-    function displayMatchData() {
-      // Display teams
-      let teamHtml = '';
-      if (matchData.teams.length >= 2) {
-        teamHtml = `
-          <div class="team-row">
-            <div class="team-name">${matchData.teams[0].name}</div>
-            <div class="team-score">${matchData.teams[0].score}</div>
-            <div class="team-overs">${matchData.teams[0].overs}</div>
-          </div>
-          <div class="vs">vs</div>
-          <div class="team-row">
-            <div class="team-name">${matchData.teams[1].name}</div>
-            <div class="team-score">${matchData.teams[1].score}</div>
-            <div class="team-overs">${matchData.teams[1].overs}</div>
-          </div>
-        `;
+
+      // Method 3: Look for "comes into the attack" text in commentary
+      for (const commentary of commentaryElements) {
+        const text = commentary.textContent;
+
+        // Look for patterns indicating a new bowler
+        const newBowlerMatch = text.match(/([A-Za-z\s\.]+),\s+comes into (the attack|the bowling)/i) ||
+                              text.match(/([A-Za-z\s\.]+)\s+comes? (?:in)?to bowl/i);
+
+        if (newBowlerMatch && newBowlerMatch[1]) {
+          return {
+            name: newBowlerMatch[1].trim(),
+            overs: "0.0",
+            maidens: "0",
+            runs: "0",
+            wickets: "0",
+            economy: "0.00"
+          };
+        }
       }
-      document.getElementById('teamInfo').innerHTML = teamHtml || '<div class="loading">No team data available</div>';
-      
-      // Display batsmen information
-      let batsmenHtml = '<h3>Current Batters</h3>';
-      
-      if (matchData.batsmen.length > 0) {
-        batsmenHtml += `
-          <table class="batsmen-table">
-            <thead>
-              <tr>
-                <th class="batsman-name">Batter</th>
-                <th class="batsman-runs">Runs</th>
-                <th class="batsman-balls">Balls</th>
-                <th class="batsman-sr">SR</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-        
-        matchData.batsmen.forEach(batsman => {
-          batsmenHtml += `
-            <tr class="${batsman.isStriker ? 'striker' : ''}">
-              <td class="batsman-name">${batsman.name}${batsman.isStriker ? ' *' : ''}</td>
-              <td class="batsman-runs">${batsman.runs}</td>
-              <td class="batsman-balls">${batsman.balls}</td>
-              <td class="batsman-sr">${batsman.strikeRate}</td>
-            </tr>
-          `;
+
+      // Default bowler info if not found
+      return {
+        name: "Current Bowler",
+        overs: "0.0",
+        maidens: "0",
+        runs: "0",
+        wickets: "0",
+        economy: "0.00"
+      };
+    }
+
+    // Extract ball-by-ball commentary
+    function extractBallByBall(doc) {
+      const ballByBall = [];
+
+      // Try to find the ball-by-ball section
+      const ballEntries = doc.querySelectorAll('.bbb-row');
+
+      if (ballEntries && ballEntries.length > 0) {
+        ballEntries.forEach(entry => {
+          const ballNumberEl = entry.querySelector('.ov');
+          const runsEl = entry.querySelector('.runs');
+          const commentaryEl = entry.querySelector('.col3');
+
+          if (commentaryEl) {
+            const commentary = commentaryEl.innerHTML.trim();
+            const ballNumber = ballNumberEl ? ballNumberEl.textContent.trim() : '';
+            const runs = runsEl ? runsEl.textContent.trim() : '';
+
+            ballByBall.push({
+              ball: ballNumber,
+              runs: runs,
+              commentary: commentary
+            });
+          }
         });
-        
-        batsmenHtml += '</tbody></table>';
-      } else {
-        batsmenHtml += '<div class="loading">No batter data available</div>';
       }
-      
-      document.getElementById('batsmenPanel').innerHTML = batsmenHtml;
-      
-      // Display ball-by-ball commentary
-      let ballByBallHtml = '';
-      
-      if (matchData.ballByBall.length > 0) {
-        matchData.ballByBall.forEach(ball => {
-          const runClass = ball.runs === '4' ? 'boundary' : 
-                          ball.runs === '6' ? 'six' : 
-                          ball.runs === 'W' ? 'wicket' : '';
-                          
-          ballByBallHtml += `
+
+      return ballByBall;
+    }
+
+    // Update the UI with extracted data
+    function updateUI(battingTeam, bowlingTeam, currentScore, currentOvers, batsmen, currentBowler, ballByBall) {
+      // Get a reference to the container
+      const scoreContent = document.getElementById('scoreContent');
+
+      // Create team header
+      const teamHeader = `
+        <div class="team-header">
+          <div class="batting-team">${battingTeam}</div>
+          <div class="bowling-team">${bowlingTeam}</div>
+        </div>
+      `;
+
+      // Create score banner
+      let scoreBanner = '';
+
+      // Ensure we have batsmen data
+      const striker = batsmen.find(b => b.isStriker) || { name: "?", runs: "?", balls: "?" };
+      const nonStriker = batsmen.find(b => !b.isStriker) || { name: "?", runs: "?", balls: "?" };
+
+      scoreBanner = `
+        <div class="score-banner">
+          <div class="batter-left">
+            <div class="bat-icon active"></div>
+            ${striker.name} (${striker.balls})
+          </div>
+          <div class="team-score">
+            ${currentScore} - ${currentOvers}
+          </div>
+          <div class="batter-right">
+            ${nonStriker.name} (${nonStriker.balls})
+          </div>
+        </div>
+      `;
+
+      // Create batsmen table
+      let batsmenTable = `
+        <h3>Current Batters</h3>
+        <table class="info-table">
+          <thead>
+            <tr>
+              <th>Batter</th>
+              <th>Runs</th>
+              <th>Balls</th>
+              <th>SR</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      batsmen.forEach(batsman => {
+        const strikeRate = calculateStrikeRate(batsman.runs, batsman.balls);
+        batsmenTable += `
+          <tr>
+            <td>
+              <div class="bat-icon ${batsman.isStriker ? 'active' : ''}"></div>
+              ${batsman.name}${batsman.isStriker ? ' *' : ''}
+            </td>
+            <td>${batsman.runs}</td>
+            <td>${batsman.balls}</td>
+            <td>${strikeRate}</td>
+          </tr>
+        `;
+      });
+
+      batsmenTable += `
+          </tbody>
+        </table>
+      `;
+
+      // Create bowler table
+      const bowlerTable = `
+        <h3>Current Bowler</h3>
+        <table class="info-table">
+          <thead>
+            <tr>
+              <th>Bowler</th>
+              <th>O</th>
+              <th>M</th>
+              <th>R</th>
+              <th>W</th>
+              <th>Econ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${currentBowler.name}</td>
+              <td>${currentBowler.overs}</td>
+              <td>${currentBowler.maidens}</td>
+              <td>${currentBowler.runs}</td>
+              <td>${currentBowler.wickets}</td>
+              <td>${currentBowler.economy}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      // Update the score content
+      scoreContent.innerHTML = teamHeader + scoreBanner + batsmenTable + bowlerTable;
+
+      // Update ball-by-ball commentary
+      updateBallByBall(ballByBall);
+    }
+
+    // Update the ball-by-ball container
+    function updateBallByBall(ballByBall) {
+      const container = document.getElementById('ballByBallContainer');
+
+      if (ballByBall.length > 0) {
+        let html = '';
+
+        ballByBall.forEach(ball => {
+          const runClass = ball.runs === '4' ? 'boundary' :
+                           ball.runs === '6' ? 'six' :
+                           ball.runs === 'W' ? 'wicket' : '';
+
+          html += `
             <div class="ball-entry">
               ${ball.ball ? `<span class="ball-number">${ball.ball}</span>` : ''}
               ${ball.runs ? `<span class="ball-runs ${runClass}">${ball.runs}</span>` : ''}
               <span class="ball-commentary">${ball.commentary}</span>
-              <span class="ball-time">${ball.time}</span>
             </div>
           `;
         });
+
+        container.innerHTML = html;
       } else {
-        ballByBallHtml = '<div class="loading">No ball-by-ball data available</div>';
+        container.innerHTML = '<div class="loading">No ball-by-ball data available</div>';
       }
-      
-      document.getElementById('ballByBallContainer').innerHTML = ballByBallHtml;
     }
-    
+
     // Helper function to calculate strike rate
     function calculateStrikeRate(runs, balls) {
       const runsNum = parseInt(runs);
       const ballsNum = parseInt(balls);
-      
+
       if (isNaN(runsNum) || isNaN(ballsNum) || ballsNum === 0) {
         return "0.00";
       }
-      
+
       const sr = (runsNum / ballsNum) * 100;
       return sr.toFixed(2);
     }
-    
-    // Function to display match data
-    function displayMatchData() {
-      // Display teams
-      let teamHtml = '';
-      if (matchData.teams.length >= 2) {
-        teamHtml = `
-          <div class="team-row">
-            <div class="team-name">${matchData.teams[0].name}</div>
-            <div class="team-score">${matchData.teams[0].score}</div>
-            <div class="team-overs">${matchData.teams[0].overs}</div>
-          </div>
-          <div class="vs">vs</div>
-          <div class="team-row">
-            <div class="team-name">${matchData.teams[1].name}</div>
-            <div class="team-score">${matchData.teams[1].score}</div>
-            <div class="team-overs">${matchData.teams[1].overs}</div>
-          </div>
-        `;
-      }
-      document.getElementById('teamInfo').innerHTML = teamHtml || '<div class="loading">No team data available</div>';
-      
-      // Display batsmen information
-      let batsmenHtml = '<h3>Current Batsmen</h3>';
-      
-      if (matchData.batsmen.length > 0) {
-        batsmenHtml += `
-          <table class="batsmen-table">
-            <thead>
-              <tr>
-                <th class="batsman-name">Batsman</th>
-                <th class="batsman-runs">Runs</th>
-                <th class="batsman-balls">Balls</th>
-                <th class="batsman-sr">SR</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-        
-        matchData.batsmen.forEach(batsman => {
-          batsmenHtml += `
-            <tr class="${batsman.isStriker ? 'striker' : ''}">
-              <td class="batsman-name">${batsman.name}${batsman.isStriker ? ' *' : ''}</td>
-              <td class="batsman-runs">${batsman.runs}</td>
-              <td class="batsman-balls">${batsman.balls}</td>
-              <td class="batsman-sr">${batsman.strikeRate}</td>
-            </tr>
-          `;
-        });
-        
-        batsmenHtml += '</tbody></table>';
-      } else {
-        batsmenHtml += '<div class="loading">No batsmen data available</div>';
-      }
-      
-      document.getElementById('batsmenPanel').innerHTML = batsmenHtml;
-      
-      // Display ball-by-ball commentary
-      let ballByBallHtml = '';
-      
-      if (matchData.ballByBall.length > 0) {
-        matchData.ballByBall.forEach(ball => {
-          const runClass = ball.runs === '4' ? 'boundary' : 
-                          ball.runs === '6' ? 'six' : 
-                          ball.runs === 'W' ? 'wicket' : '';
-                          
-          ballByBallHtml += `
-            <div class="ball-entry">
-              ${ball.ball ? `<span class="ball-number">${ball.ball}</span>` : ''}
-              ${ball.runs ? `<span class="ball-runs ${runClass}">${ball.runs}</span>` : ''}
-              <span class="ball-commentary">${ball.commentary}</span>
-              <span class="ball-time">${ball.time}</span>
-            </div>
-          `;
-        });
-      } else {
-        ballByBallHtml = '<div class="loading">No ball-by-ball data available</div>';
-      }
-      
-      document.getElementById('ballByBallContainer').innerHTML = ballByBallHtml;
-    }
-    
-    // Initialize page
-    window.onload = function() {
-      // Add event listener for auto-refresh toggle
-      document.getElementById('autoRefreshToggle').addEventListener('change', setupAutoRefresh);
-      
-      // Initial data fetch
-      fetchMatchData();
-      
-      // Set up auto-refresh
-      setupAutoRefresh();
-    };
+
+    // Load the match data when the page loads
+    window.addEventListener('DOMContentLoaded', loadMatchData);
   </script>
 </body>
 </html>
