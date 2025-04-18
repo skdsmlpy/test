@@ -222,7 +222,7 @@
         height: auto;
         max-height: 400px;
       }
-      
+
       /* Make tables stack on mobile */
       .tables-container {
         flex-direction: column;
@@ -532,10 +532,7 @@
 
       // Create team header
       const teamHeader = `
-        <div class="team-header">
-          <div class="batting-team">${battingTeam}</div>
-          <div class="bowling-team">${bowlingTeam}</div>
-        </div>
+
       `;
 
       // Create score banner
@@ -550,16 +547,17 @@
           <div class="batter-left">
             <div style="display: flex; align-items: center;">
               <span class="bat-icon active"></span>
-              <span>${striker.name}</span>
+              <span>${nonStriker.name}  ${nonStriker.runs} (${nonStriker.balls})</span>
             </div>
-            <div class="batter-score">${striker.runs} (${striker.balls})</div>
+            <div class="batter-score">${striker.name}  ${striker.runs} (${striker.balls})</div>
+
           </div>
           <div class="team-score">
-            ${currentScore} - ${currentOvers}
+           ${battingTeam}  ${currentScore} (${currentOvers})  ${bowlingTeam}
           </div>
           <div class="batter-right">
-            <div>${nonStriker.name}</div>
-            <div class="batter-score">${nonStriker.runs} (${nonStriker.balls})</div>
+            <div>${currentBowler.name} ( ${currentBowler.overs} - ${currentBowler.runs} - ${currentBowler.wickets})</div>
+
           </div>
         </div>
       `;
@@ -596,7 +594,7 @@
               </tbody>
             </table>
           </div>
-          
+
           <div class="table-section">
             <h3>Current Bowler</h3>
             <table class="info-table">
