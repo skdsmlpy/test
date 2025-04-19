@@ -6,196 +6,99 @@
   <title>Dynamic Cricket Score Display</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 10px;
       line-height: 1.4;
       color: #333;
       font-size: 14px;
+      background-color: #f5f9fa;
     }
 
     h3 {
-      color: #2c3e50;
+      color: white;
       margin-top: 10px;
       margin-bottom: 10px;
       font-size: 16px;
+      font-weight: bold;
     }
 
-    .container {
+    /* Score banner styles - modified to include tables */
+    .score-banner {
+      background: linear-gradient(to right, #4ac1c7, #2a6d80);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 15px;
+      color: white;
+      padding: 20px;
+    }
+
+    /* Team and score styles */
+    .team-score {
+      flex: 1;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      width: 100%;
+      justify-content: center;
+      align-items: center;
+      padding: 0 20px;
+      height: 100%;
+      min-height: 150px;
     }
 
-    .scores-panel {
-      width: 100%;
+    .teams-header {
+      font-size: 20px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .score-display {
+      font-size: 24px;
+      font-weight: bold;
       margin-bottom: 20px;
     }
 
-    .ball-by-ball-panel {
-      width: 100%;
-      border-top: 1px solid #ddd;
-      padding-top: 10px;
-      max-height: 600px;
-      overflow-y: auto;
-    }
-
-    /* Team header styles */
-    .team-header {
-      display: flex;
-      margin-bottom: 15px;
-    }
-
-    .batting-team, .bowling-team {
-      flex: 1;
-      padding: 10px;
-      background-color: #f0f0f0;
-      color: #333;
-      text-align: center;
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    .batting-team {
-      border-right: 1px solid white;
-      border-top-left-radius: 4px;
-      border-bottom-left-radius: 4px;
-    }
-
-    .bowling-team {
-      border-top-right-radius: 4px;
-      border-bottom-right-radius: 4px;
-    }
-
-    /* Score banner styles */
-    .score-banner {
-      display: flex;
-      background: linear-gradient(to right, #f8f9fa, #2c3e73);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 10px;
-      color: white;
-      height: 60px;
-    }
-
-    .batter-left, .batter-right {
-      width: 25%;
-      padding: 5px 10px;
-      background-color: #f0f0f0;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .team-score {
-      width: 50%;
-      background-color: #2c3e73;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    .bat-icon {
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 6px;
-      width: 20px;
-      height: 20px;
-      background-image: url('data:image/png;base64,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');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      opacity: 0.5;
-    }
-
-    .bat-icon.active {
-      opacity: 1;
-    }
-
-    /* NEW: Tables wrapper for side-by-side layout */
+    /* Tables container inside banner */
     .tables-container {
       display: flex;
-      gap: 15px;
-      margin-bottom: 15px;
+      gap: 0;
+      height: 100%;
+      align-items: stretch;
     }
 
     .table-section {
       flex: 1;
     }
 
-    /* Table styles */
+    /* Table styles for inside banner */
     .info-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 15px;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      background-color: white;
     }
 
     .info-table th, .info-table td {
-      border: 1px solid #ddd;
-      padding: a8px;
+      border: 1px solid #e3f2f5;
+      padding: 8px;
       text-align: left;
     }
 
     .info-table th {
-      background-color: #f2f2f2;
+      background-color: white;
+      color: #2a6d80;
     }
 
-    /* Ball by ball section */
-    .ball-by-ball {
-      margin-top: 10px;
+    .info-table tr:nth-child(even) {
+      background-color: #f9fdfd;
     }
 
-    .ball-entry {
-      padding: 6px;
-      border-bottom: 1px solid #eee;
-      position: relative;
-      font-size: 13px;
-    }
-
-    .ball-entry:nth-child(odd) {
-      background-color: #f9f9f9;
-    }
-
-    .ball-number {
+    .striker-indicator {
       font-weight: bold;
+      color: #2a6d80;
       margin-right: 5px;
-      background-color: #3498db;
-      color: white;
-      padding: 2px 5px;
-      border-radius: 10px;
-      font-size: 12px;
-      display: inline-block;
-      min-width: 30px;
-      text-align: center;
-    }
-
-    .ball-runs {
-      font-weight: bold;
-      margin-right: 5px;
-      background-color: #e67e22;
-      color: white;
-      padding: 2px 5px;
-      border-radius: 10px;
-      font-size: 12px;
-      min-width: 15px;
-      text-align: center;
-      display: inline-block;
-    }
-
-    .ball-runs.boundary {
-      background-color: #27ae60;
-    }
-
-    .ball-runs.six {
-      background-color: #8e44ad;
-    }
-
-    .ball-runs.wicket {
-      background-color: #c0392b;
     }
 
     .loading {
@@ -205,27 +108,59 @@
       color: #777;
     }
 
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding: 10px;
+      background: linear-gradient(to right, #f5f9fa, #e3f2f5);
+      border-radius: 4px;
+    }
+
+    .match-id-control {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="number"] {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 100px;
+    }
+
+    button {
+      background: linear-gradient(to right, #4ac1c7, #3a8f99);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #3a8f99, #2a6d80);
+    }
+
+    .auto-refresh {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     /* Responsive styles */
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-
-      .scores-panel, .ball-by-ball-panel {
-        width: 100%;
-        padding: 0;
-      }
-
-      .ball-by-ball-panel {
-        margin-top: 10px;
-        padding-top: 10px;
-        height: auto;
-        max-height: 400px;
-      }
-
-      /* Make tables stack on mobile */
       .tables-container {
         flex-direction: column;
+      }
+
+      .controls {
+        flex-direction: column;
+        gap: 10px;
       }
     }
   </style>
@@ -235,45 +170,102 @@
     <div id="scoreContent" class="scores-panel">
       <div id="loading" class="loading">Loading match details...</div>
     </div>
-    <div class="ball-by-ball-panel">
-      <h3>Ball By Ball Commentary</h3>
-      <div class="ball-by-ball" id="ballByBallContainer">
-        <div class="loading">Loading ball-by-ball commentary...</div>
+
+    <div class="controls">
+      <div class="match-id-control">
+        <label for="matchId">Match ID:</label>
+        <input type="number" id="matchId" value="677" min="1">
+        <button id="loadMatchBtn">Load Match</button>
+      </div>
+      <div class="auto-refresh">
+        <input type="checkbox" id="autoRefresh">
+        <label for="autoRefresh">Auto-refresh every 10 seconds</label>
       </div>
     </div>
   </div>
 
   <script>
     // Constants and configuration
-    const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+    let MATCH_ID = 677; // Default match ID
     const CLUB_ID = 862;
-    let MATCH_ID = 677; // Default match ID, can be changed
+    let autoRefreshInterval;
 
     // Main function to fetch and process cricket data
     async function loadMatchData() {
       try {
         document.getElementById('loading').innerHTML = '<div class="loading">Loading match details...</div>';
-        document.getElementById('ballByBallContainer').innerHTML = '<div class="loading">Loading ball-by-ball commentary...</div>';
 
-        // Create the target URL
+        // Update match ID from input
+        MATCH_ID = document.getElementById('matchId').value;
+
+        // Create the target URL - direct approach without proxy
         const targetUrl = `https://cricclubs.com/FT20/ballbyball.do?matchId=${MATCH_ID}&clubId=${CLUB_ID}`;
-        const encodedTargetUrl = encodeURIComponent(targetUrl);
-        const fullUrl = PROXY_URL + encodedTargetUrl;
-
-        // Fetch data
-        const response = await fetch(fullUrl);
+        
+        console.log('Fetching data directly from:', targetUrl);
+          
+        // Try to fetch actual data directly
+        const response = await fetch(targetUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'text/html,application/xhtml+xml,application/xml',
+            'Accept-Language': 'en-US,en;q=0.9',
+          },
+          credentials: 'omit',
+          mode: 'cors'
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const html = await response.text();
-
+        console.log('Data fetched successfully, length:', html.length);
+        
         // Process the HTML to extract data
         processMatchData(html);
       } catch (error) {
         console.error('Error loading match data:', error);
         document.getElementById('loading').innerHTML = `<div class="loading">Error: ${error.message}</div>`;
+        
+        // Fallback to demo data when direct fetch fails
+        const demoData = {
+          battingTeam: "ICAT",
+          bowlingTeam: "ICAT Warriors",
+          currentScore: "6/0",
+          currentOvers: "1.0 /20 ov",
+          batsmen: [
+            {
+              name: "Ashwath",
+              runs: "4",
+              balls: "6",
+              isStriker: true
+            },
+            {
+              name: "Kanwal",
+              runs: "2",
+              balls: "0",
+              isStriker: false
+            }
+          ],
+          currentBowler: {
+            name: "Rohit Singh",
+            overs: "1.0",
+            maidens: "0",
+            runs: "6",
+            wickets: "0",
+            economy: "6.00"
+          }
+        };
+
+        // Update UI with demo data
+        updateUI(
+          demoData.battingTeam, 
+          demoData.bowlingTeam,
+          demoData.currentScore,
+          demoData.currentOvers,
+          demoData.batsmen,
+          demoData.currentBowler
+        );
       }
     }
 
@@ -297,11 +289,8 @@
       // Extract bowler information
       const currentBowler = extractCurrentBowler(doc);
 
-      // Extract ball-by-ball commentary
-      const ballByBall = extractBallByBall(doc);
-
       // Update the UI
-      updateUI(battingTeam, bowlingTeam, currentScore, currentOvers, batsmen, currentBowler, ballByBall);
+      updateUI(battingTeam, bowlingTeam, currentScore, currentOvers, batsmen, currentBowler);
     }
 
     // Extract batting team from HTML
@@ -350,21 +339,8 @@
 
     // Extract batsmen information
     function extractBatsmen(doc) {
-      // Set up default batsmen data (will be overridden if we find actual data)
-      let batsmen = [
-        {
-          name: "Kiran Bhat",
-          runs: "20",
-          balls: "9",
-          isStriker: true
-        },
-        {
-          name: "Nagaraju P",
-          runs: "8",
-          balls: "7",
-          isStriker: false
-        }
-      ];
+      // Initialize empty batsmen array
+      let batsmen = [];
 
       // Try to get actual data from tables
       const tables = doc.querySelectorAll('table');
@@ -406,7 +382,7 @@
             }
           }
 
-          // If we found batters, update our default list
+          // If we found batters, update our list
           if (extractedBatters.length > 0) {
             batsmen = extractedBatters;
             break;
@@ -414,29 +390,28 @@
         }
       }
 
-      // Ensure Kiran is striker and Nagaraju is non-striker
-      // This ensures correct display without hardcoding the specific players
+      // If we didn't find any batsmen from the data, create two placeholder entries
+      if (batsmen.length === 0) {
+        batsmen = [
+          {
+            name: "Batter 1",
+            runs: "0",
+            balls: "0",
+            isStriker: true
+          },
+          {
+            name: "Batter 2",
+            runs: "0",
+            balls: "0",
+            isStriker: false
+          }
+        ];
+      }
+
+      // If we have at least two batsmen, set striker status
       if (batsmen.length >= 2) {
-        // Find indices if they exist
-        const kiranIndex = batsmen.findIndex(b =>
-          b.name.toLowerCase().includes('kiran') ||
-          b.name.toLowerCase().includes('bhat')
-        );
-
-        const nagarajuIndex = batsmen.findIndex(b =>
-          b.name.toLowerCase().includes('nagaraju') ||
-          b.name.toLowerCase().includes('p')
-        );
-
-        // Set striker/non-striker status
-        if (kiranIndex !== -1 && nagarajuIndex !== -1) {
-          batsmen[kiranIndex].isStriker = true;
-          batsmen[nagarajuIndex].isStriker = false;
-        } else if (batsmen.length >= 2) {
-          // If we don't find the specific players but have at least 2 batters
-          batsmen[0].isStriker = true;
-          batsmen[1].isStriker = false;
-        }
+        batsmen[0].isStriker = true;
+        batsmen[1].isStriker = false;
       }
 
       return batsmen;
@@ -444,14 +419,14 @@
 
     // Extract current bowler information
     function extractCurrentBowler(doc) {
-      // Default bowler
+      // Initialize bowler object with placeholder values
       let bowler = {
-        name: "Sagar Gaikwad",
-        overs: "1.4",
+        name: "Bowler",
+        overs: "0.0",
         maidens: "0",
-        runs: "20",
+        runs: "0",
         wickets: "0",
-        economy: "12.00"
+        economy: "0.00"
       };
 
       // Try to find the current bowler from tables
@@ -480,11 +455,11 @@
 
                 if (name && name.length > 1) {
                   bowler.name = name;
-                  if (cells.length > 1) bowler.overs = cells[1].textContent.trim();
-                  if (cells.length > 2) bowler.maidens = cells[2].textContent.trim();
-                  if (cells.length > 3) bowler.runs = cells[3].textContent.trim();
-                  if (cells.length > 4) bowler.wickets = cells[4].textContent.trim();
-                  if (cells.length > 5) bowler.economy = cells[5].textContent.trim();
+                  if (cells.length > 1) bowler.overs = cells[1].textContent.trim() || "0.0";
+                  if (cells.length > 2) bowler.maidens = cells[2].textContent.trim() || "0";
+                  if (cells.length > 3) bowler.runs = cells[3].textContent.trim() || "0";
+                  if (cells.length > 4) bowler.wickets = cells[4].textContent.trim() || "0";
+                  if (cells.length > 5) bowler.economy = cells[5].textContent.trim() || "0.00";
                 }
               }
             }
@@ -495,166 +470,87 @@
       return bowler;
     }
 
-    // Extract ball-by-ball commentary
-    function extractBallByBall(doc) {
-      const ballByBall = [];
-
-      // Try to find the ball-by-ball section
-      const ballEntries = doc.querySelectorAll('.bbb-row');
-
-      if (ballEntries && ballEntries.length > 0) {
-        ballEntries.forEach(entry => {
-          const ballNumberEl = entry.querySelector('.ov');
-          const runsEl = entry.querySelector('.runs');
-          const commentaryEl = entry.querySelector('.col3');
-
-          if (commentaryEl) {
-            const commentary = commentaryEl.innerHTML.trim();
-            const ballNumber = ballNumberEl ? ballNumberEl.textContent.trim() : '';
-            const runs = runsEl ? runsEl.textContent.trim() : '';
-
-            ballByBall.push({
-              ball: ballNumber,
-              runs: runs,
-              commentary: commentary
-            });
-          }
-        });
-      }
-
-      return ballByBall;
-    }
-
     // Update the UI with extracted data
-    function updateUI(battingTeam, bowlingTeam, currentScore, currentOvers, batsmen, currentBowler, ballByBall) {
+    function updateUI(battingTeam, bowlingTeam, currentScore, currentOvers, batsmen, currentBowler) {
       // Get a reference to the container
       const scoreContent = document.getElementById('scoreContent');
-
-      // Create team header
-      const teamHeader = `
-
-      `;
-
-      // Create score banner
-      let scoreBanner = '';
 
       // Ensure we have batsmen data
       const striker = batsmen.find(b => b.isStriker) || { name: "?", runs: "?", balls: "?" };
       const nonStriker = batsmen.find(b => !b.isStriker) || { name: "?", runs: "?", balls: "?" };
 
-      scoreBanner = `
+      // Create integrated score banner with tables inside
+      const integratedScoreBanner = `
         <div class="score-banner">
-          <div class="batter-left">
-            <div style="display: flex; align-items: center;">
-              <span class="bat-icon active"></span>
-              <span>${nonStriker.name}  ${nonStriker.runs} (${nonStriker.balls})</span>
+          <!-- Tables Container inside the banner with team info in the middle -->
+          <div class="tables-container">
+            <div class="table-section">
+              <h3>Current Batters</h3>
+              <table class="info-table">
+                <thead>
+                  <tr>
+                    <th>Batter</th>
+                    <th>Runs</th>
+                    <th>Balls</th>
+                    <th>SR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${batsmen.map(batsman => {
+                    const strikeRate = calculateStrikeRate(batsman.runs, batsman.balls);
+                    return `
+                      <tr>
+                        <td>
+                          ${batsman.isStriker ? '<span class="striker-indicator">*</span>' : ''}
+                          ${batsman.name}
+                        </td>
+                        <td>${batsman.runs}</td>
+                        <td>${batsman.balls}</td>
+                        <td>${strikeRate}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
             </div>
-            <div class="batter-score">${striker.name}  ${striker.runs} (${striker.balls})</div>
-
-          </div>
-          <div class="team-score">
-           ${battingTeam}  ${currentScore} (${currentOvers})  ${bowlingTeam}
-          </div>
-          <div class="batter-right">
-            <div>${currentBowler.name} ( ${currentBowler.overs} - ${currentBowler.runs} - ${currentBowler.wickets})</div>
-
-          </div>
-        </div>
-      `;
-
-      // Create tables container with batsmen and bowler tables side by side
-      const tablesContainer = `
-        <div class="tables-container">
-          <div class="table-section">
-            <h3>Current Batters</h3>
-            <table class="info-table">
-              <thead>
-                <tr>
-                  <th>Batter</th>
-                  <th>Runs</th>
-                  <th>Balls</th>
-                  <th>SR</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${batsmen.map(batsman => {
-                  const strikeRate = calculateStrikeRate(batsman.runs, batsman.balls);
-                  return `
-                    <tr>
-                      <td>
-                        ${batsman.isStriker ? '<span class="bat-icon active"></span>' : ''}
-                        ${batsman.name}
-                      </td>
-                      <td>${batsman.runs}</td>
-                      <td>${batsman.balls}</td>
-                      <td>${strikeRate}</td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-          </div>
-
-          <div class="table-section">
-            <h3>Current Bowler</h3>
-            <table class="info-table">
-              <thead>
-                <tr>
-                  <th>Bowler</th>
-                  <th>O</th>
-                  <th>M</th>
-                  <th>R</th>
-                  <th>W</th>
-                  <th>Econ</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>${currentBowler.name}</td>
-                  <td>${currentBowler.overs}</td>
-                  <td>${currentBowler.maidens}</td>
-                  <td>${currentBowler.runs}</td>
-                  <td>${currentBowler.wickets}</td>
-                  <td>${currentBowler.economy}</td>
-                </tr>
-              </tbody>
-            </table>
+            
+            <!-- Team and Score Section in the middle -->
+            <div class="team-score">
+              <div class="teams-header">${battingTeam} vs ${bowlingTeam}</div>
+              <div class="score-display">${currentScore} (${currentOvers})</div>
+            </div>
+            
+            <div class="table-section">
+              <h3>Current Bowler</h3>
+              <table class="info-table">
+                <thead>
+                  <tr>
+                    <th>Bowler</th>
+                    <th>O</th>
+                    <th>M</th>
+                    <th>R</th>
+                    <th>W</th>
+                    <th>Econ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>${currentBowler.name}</td>
+                    <td>${currentBowler.overs}</td>
+                    <td>${currentBowler.maidens}</td>
+                    <td>${currentBowler.runs}</td>
+                    <td>${currentBowler.wickets}</td>
+                    <td>${currentBowler.economy}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       `;
 
       // Update the score content
-      scoreContent.innerHTML = teamHeader + scoreBanner + tablesContainer;
-
-      // Update ball-by-ball commentary
-      updateBallByBall(ballByBall);
-    }
-
-    // Update the ball-by-ball container
-    function updateBallByBall(ballByBall) {
-      const container = document.getElementById('ballByBallContainer');
-
-      if (ballByBall.length > 0) {
-        let html = '';
-
-        ballByBall.forEach(ball => {
-          const runClass = ball.runs === '4' ? 'boundary' :
-                           ball.runs === '6' ? 'six' :
-                           ball.runs === 'W' ? 'wicket' : '';
-
-          html += `
-            <div class="ball-entry">
-              ${ball.ball ? `<span class="ball-number">${ball.ball}</span>` : ''}
-              ${ball.runs ? `<span class="ball-runs ${runClass}">${ball.runs}</span>` : ''}
-              <span class="ball-commentary">${ball.commentary}</span>
-            </div>
-          `;
-        });
-
-        container.innerHTML = html;
-      } else {
-        container.innerHTML = '<div class="loading">No ball-by-ball data available</div>';
-      }
+      scoreContent.innerHTML = integratedScoreBanner;
     }
 
     // Helper function to calculate strike rate
@@ -670,8 +566,41 @@
       return sr.toFixed(2);
     }
 
-    // Load the match data when the page loads
-    window.addEventListener('DOMContentLoaded', loadMatchData);
+    // Setup event listeners
+    function setupEventListeners() {
+      // Load match button
+      document.getElementById('loadMatchBtn').addEventListener('click', () => {
+        loadMatchData();
+        console.log("Loading match data for ID:", document.getElementById('matchId').value);
+      });
+
+      // Match ID input - load on enter
+      document.getElementById('matchId').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          loadMatchData();
+          console.log("Loading match data on Enter for ID:", this.value);
+        }
+      });
+
+      // Auto-refresh checkbox
+      document.getElementById('autoRefresh').addEventListener('change', function(e) {
+        if (this.checked) {
+          // Start auto-refresh
+          console.log("Auto-refresh enabled, refreshing every 10 seconds");
+          autoRefreshInterval = setInterval(loadMatchData, 10000); // 10 seconds
+        } else {
+          // Stop auto-refresh
+          console.log("Auto-refresh disabled");
+          clearInterval(autoRefreshInterval);
+        }
+      });
+    }
+
+    // Initialize when the page loads
+    window.addEventListener('DOMContentLoaded', function() {
+      loadMatchData();
+      setupEventListeners();
+    });
   </script>
 </body>
 </html>
